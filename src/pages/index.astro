@@ -1,0 +1,152 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { getCollection } from 'astro:content';
+import { getReadingTime, formatWordCount } from '../utils/reading-time';
+
+// 获取所有博客文章
+const allPosts = await getCollection('blog');
+
+// 计算每篇文章的阅读时间（使用 post.body）
+const postsWithReadingTime = allPosts.map((post) => {
+	// post.body 包含原始的 Markdown/MDX 内容
+	const content = post.body || '';
+	const readingTime = getReadingTime(content);
+	return {
+		post,
+		readingTime,
+	};
+});
+
+// 按日期倒序排列
+const sortedPosts = postsWithReadingTime.sort(
+	(a, b) => b.post.data.pubDate.valueOf() - a.post.data.pubDate.valueOf()
+);
+---
+
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+	</head>
+	<body>
+		<Header />
+		<main class="container">
+			<div class="hero">
+				<h1 class="title">{SITE_TITLE}</h1>
+				<p class="subtitle">{SITE_DESCRIPTION}</p>
+			</div>
+
+			<section class="posts-list">
+				{sortedPosts.map(({ post, readingTime }) => (
+					<article class="post-item">
+						<a href={`/blog/${post.id}/`} class="post-link">
+							<h2 class="post-title">{post.data.title}</h2>
+						</a>
+						<div class="post-meta">
+							<time datetime={post.data.pubDate.toISOString()}>
+								{post.data.pubDate.toLocaleDateString('zh-CN')}
+							</time>
+							<span class="post-stats">
+								{formatWordCount(readingTime.words)}字 · {readingTime.minutes}分钟
+							</span>
+							{post.data.updatedDate && (
+								<span class="post-updated">
+									（更新于 {post.data.updatedDate.toLocaleDateString('zh-CN')}）
+								</span>
+							)}
+						</div>
+						{post.data.description && (
+							<p class="post-description">{post.data.description}</p>
+						)}
+					</article>
+				))}
+			</section>
+		</main>
+		<Footer />
+	</body>
+</html>
+
+<style>
+	.container {
+		max-width: 800px;
+		margin: 0 auto;
+		padding: 2rem 1rem;
+	}
+
+	.hero {
+		text-align: center;
+		margin-bottom: 3rem;
+		padding: 2rem 0;
+	}
+
+	.title {
+		font-size: 2.5rem;
+		font-weight: 700;
+		margin-bottom: 0.5rem;
+		color: var(--text-primary);
+	}
+
+	.subtitle {
+		font-size: 1.1rem;
+		color: var(--text-secondary);
+		font-style: italic;
+	}
+
+	.posts-list {
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+	}
+
+	.post-item {
+		padding: 1.5rem;
+		border-left: 3px solid var(--accent-color);
+		background: var(--card-bg);
+		border-radius: 8px;
+		transition: transform 0.2s, box-shadow 0.2s;
+	}
+
+	.post-item:hover {
+		transform: translateX(4px);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	}
+
+	.post-link {
+		text-decoration: none;
+		color: inherit;
+	}
+
+	.post-title {
+		font-size: 1.5rem;
+		font-weight: 600;
+		margin-bottom: 0.5rem;
+		color: var(--text-primary);
+	}
+
+	.post-meta {
+		font-size: 0.9rem;
+		color: var(--text-secondary);
+		margin-bottom: 0.5rem;
+		display: flex;
+		gap: 1rem;
+		align-items: center;
+		flex-wrap: wrap;
+	}
+
+	.post-stats {
+		background: var(--accent-color);
+		color: white;
+		padding: 0.2rem 0.6rem;
+		border-radius: 4px;
+		font-size: 0.85rem;
+		font-weight: 500;
+	}
+
+	.post-description {
+		color: var(--text-secondary);
+		line-height: 1.6;
+	}
+</style>

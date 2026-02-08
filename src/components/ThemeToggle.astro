@@ -1,0 +1,127 @@
+---
+// 主题切换按钮组件
+---
+
+<button id="theme-toggle" class="theme-toggle" aria-label="切换主题">
+	<!-- 太阳图标（浅色模式） -->
+	<svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+		<circle cx="12" cy="12" r="5"></circle>
+		<path d="M12 1v2M12 7v5M12 15v2"></path>
+	</svg>
+
+	<!-- 月亮图标（暗色模式） -->
+	<svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+		<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0-21 12.79z"></path>
+	</svg>
+</button>
+
+<script>
+	// 获取主题切换按钮
+	const themeToggle = document.getElementById('theme-toggle');
+	const html = document.documentElement;
+
+	// 从 localStorage 获取保存的主题，或使用系统偏好
+	const savedTheme = localStorage.getItem('theme');
+	const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+	const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+
+	// 设置初始主题
+	html.setAttribute('data-theme', initialTheme);
+	updateIcon(initialTheme);
+
+	// 监听点击事件
+	themeToggle.addEventListener('click', () => {
+		const currentTheme = html.getAttribute('data-theme');
+		const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+		html.setAttribute('data-theme', newTheme);
+		localStorage.setItem('theme', newTheme);
+		updateIcon(newTheme);
+	});
+
+	// 更新图标显示
+	function updateIcon(theme) {
+		const sunIcon = themeToggle.querySelector('.sun-icon');
+		const moonIcon = themeToggle.querySelector('.moon-icon');
+
+		if (theme === 'dark') {
+			sunIcon.style.display = 'none';
+			moonIcon.style.display = 'block';
+		} else {
+			sunIcon.style.display = 'block';
+			moonIcon.style.display = 'none';
+		}
+	}
+
+	// 监听系统主题变化
+	window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+		if (!localStorage.getItem('theme')) {
+			const systemTheme = e.matches ? 'dark' : 'light';
+			html.setAttribute('data-theme', systemTheme);
+			updateIcon(systemTheme);
+		}
+	});
+</script>
+
+<style>
+	.theme-toggle {
+		position: relative;
+		background: transparent;
+		border: none;
+		cursor: pointer;
+		padding: 0.5rem;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	transition: all 0.3s ease;
+		color: var(--text-primary);
+	}
+
+	.theme-toggle:hover {
+		background: rgba(var(--gray), 0.1);
+		transform: scale(1.1);
+	}
+
+	.theme-toggle:active {
+		transform: scale(0.95);
+	}
+
+	.sun-icon,
+	.moon-icon {
+		width: 20px;
+		height: 20px;
+		transition: opacity 0.3s ease, transform 0.3s ease;
+	}
+
+	.sun-icon {
+		color: #fbbf24;
+	}
+
+	.moon-icon {
+		color: #f4f4f5;
+		display: none; /* 默认隐藏月亮图标 */
+	}
+
+	/* 图标动画 */
+	.theme-toggle:hover .sun-icon {
+		transform: rotate(45deg);
+	}
+
+	.theme-toggle:hover .moon-icon {
+		transform: rotate(-15deg);
+	}
+
+	@media (max-width: 720px) {
+		.theme-toggle {
+			padding: 0.4rem;
+		}
+
+		.sun-icon,
+		.moon-icon {
+			width: 18px;
+			height: 18px;
+		}
+	}
+</style>

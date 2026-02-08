@@ -22,6 +22,33 @@
 	--text-secondary: rgb(96, 115, 159);
 	--card-bg: rgba(255, 255, 255, 0.6);
 	--card-bg-hover: rgba(255, 255, 255, 0.9);
+	--bg-primary: #ffffff;
+	--bg-secondary: #f5f5f5;
+	--border-color: #e0e0e0;
+}
+
+/* 暗色模式变量 */
+[data-theme='dark'] {
+	--accent: #6366f1;
+	--accent-dark: #4f46e5;
+	--black: 255, 255, 255;
+	--gray: 148, 163, 184;
+	--gray-light: 30, 41, 59;
+	--gray-dark: 203, 213, 225;
+	--gray-gradient: rgba(30, 41, 59, 0.5), #0f172a;
+	--box-shadow:
+		0 2px 6px rgba(0, 0, 0, 25%), 0 8px 24px rgba(0, 0, 0, 33%), 0 16px 32px
+		rgba(0, 0, 0, 33%);
+
+	/* 暗色模式卡片样式 */
+	--accent-color: #6366f1;
+	--text-primary: rgb(241, 245, 249);
+	--text-secondary: rgb(148, 163, 184);
+	--card-bg: rgba(30, 41, 59, 0.6);
+	--card-bg-hover: rgba(30, 41, 59, 0.9);
+	--bg-primary: #0f172a;
+	--bg-secondary: #1e293b;
+	--border-color: #334155;
 }
 @font-face {
 	font-family: "Atkinson";
@@ -159,4 +186,43 @@ hr {
 	clip-path: inset(50%);
 	/* added line to stop words getting smushed together (as they go onto separate lines and some screen readers do not understand line feeds as a space */
 	white-space: nowrap;
+}
+
+/* 主题切换过渡效果 */
+body {
+	transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* 暗色模式 body 背景 */
+[data-theme='dark'] body {
+	background: linear-gradient(rgba(15, 23, 42, 0.5), #0f172a) no-repeat;
+	background-size: 100% 600px;
+}
+
+/* 暗色模式卡片背景 */
+[data-theme='dark'] .post-item,
+[data-theme='dark'] .card {
+	background: var(--card-bg);
+	border-left-color: var(--accent-color);
+}
+
+[data-theme='dark'] header,
+[data-theme='dark'] footer {
+	background: var(--bg-primary);
+	border-bottom: 1px solid var(--border-color);
+}
+
+[data-theme='dark'] main,
+[data-theme='dark'] .prose {
+	color: var(--text-primary);
+}
+
+/* 代码块暗色模式 */
+[data-theme='dark'] pre {
+	background-color: rgba(0, 0, 0, 0.5);
+	border: 1px solid var(--border-color);
+}
+
+[data-theme='dark'] code {
+	background-color: rgba(255, 255, 255, 0.1);
 }

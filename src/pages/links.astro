@@ -1,0 +1,370 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import BackToTop from '../components/BackToTop.astro';
+import ReadingProgress from '../components/ReadingProgress.astro';
+import { sortedLinks } from '../data/links';
+---
+
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<BaseHead title="友链 - 友情链接" description="我的博客友情链接" />
+	</head>
+	<body>
+		<ReadingProgress />
+		<Header />
+		<main class="container">
+			<div class="hero">
+				<h1 class="title">🔗 友情链接</h1>
+				<p class="subtitle">与优秀的创作者和开发者建立联系</p>
+			</div>
+
+			<section class="links-section">
+				<div class="intro">
+					<h2>关于友链</h2>
+					<p>
+						这里是一些我常访问的优质网站和技术资源。如果你也想交换友链，
+						欢迎通过 <a href="/about">关于页面</a> 中的联系方式联系我～
+					</p>
+				</div>
+
+				<div class="links-grid">
+					{sortedLinks.map((link) => (
+						<a
+							href={link.url}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="link-card"
+						>
+							<div class="link-avatar">
+								{link.avatar ? (
+									<img src={link.avatar} alt={link.name} loading="lazy" />
+								) : (
+									<div class="avatar-placeholder">{link.name[0]}</div>
+								)}
+							</div>
+							<div class="link-info">
+								<h3 class="link-name">{link.name}</h3>
+								<p class="link-description">{link.description}</p>
+								<div class="link-url">↗ {new URL(link.url).hostname}</div>
+							</div>
+						</a>
+					))}
+				</div>
+
+				{sortedLinks.length === 0 && (
+					<div class="empty-state">
+						<p>暂无友链，持续更新中...</p>
+					</div>
+				)}
+			</section>
+
+			<!-- 添加友链说明 -->
+			<section class="apply-section">
+				<h2>交换友链</h2>
+				<div class="apply-info">
+					<p>如果你也有博客或个人网站，欢迎交换友链接！</p>
+					<h3>本站信息：</h3>
+					<ul class="site-info">
+						<li><strong>名称：</strong>kniphofia1's Blog</li>
+						<li><strong>描述：</strong>分享技术、设计与生活的个人博客</li>
+						<li><strong>链接：</strong>https://my-blog-delta-mocha.vercel.app/</li>
+					</ul>
+					<p class="apply-note">
+						请通过<a href="/about">关于页面</a>的联系方式联系我，
+						并提供你的网站信息（名称、描述、链接、头像）。
+					</p>
+				</div>
+			</section>
+		</main>
+		<BackToTop />
+		<Footer />
+	</body>
+</html>
+
+<style>
+	.container {
+		width: 100%;
+		max-width: 900px;
+		margin: 0 auto;
+		padding: var(--space-2xl) var(--space-xl);
+	}
+
+	/* Hero 区域 */
+	.hero {
+		text-align: center;
+		margin-bottom: var(--space-3xl);
+		padding: var(--space-3xl) var(--space-xl);
+		background: var(--glass-bg);
+		backdrop-filter: var(--glass-blur);
+		-webkit-backdrop-filter: var(--glass-blur);
+		border-radius: 32px 24px 28px 26px;
+		border: 1px solid var(--glass-border);
+		box-shadow: var(--glass-shadow);
+		position: relative;
+		overflow: hidden;
+		animation: fadeInUp 0.6s ease-out;
+	}
+
+	.title {
+		font-size: 3rem;
+		font-weight: 700;
+		margin-bottom: var(--space-md);
+		background: var(--gradient-primary);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		background-clip: text;
+		position: relative;
+	}
+
+	.subtitle {
+		font-size: 1.25rem;
+		color: var(--text-secondary);
+		font-weight: 400;
+	}
+
+	/* 友链介绍 */
+	.intro {
+		background: var(--glass-bg);
+		backdrop-filter: var(--glass-blur);
+		-webkit-backdrop-filter: var(--glass-blur);
+		border-radius: var(--radius-xl);
+		border: 1px solid var(--glass-border);
+		padding: var(--space-xl);
+		margin-bottom: var(--space-2xl);
+		animation: fadeInUp 0.6s ease-out 0.1s backwards;
+	}
+
+	.intro h2 {
+		font-size: 1.5rem;
+		margin-bottom: var(--space-md);
+		color: var(--text-primary);
+	}
+
+	.intro p {
+		color: var(--text-secondary);
+		line-height: 1.7;
+	}
+
+	.intro a {
+		color: var(--ocean-300);
+		text-decoration: none;
+		border-bottom: 1px solid transparent;
+		transition: border-color var(--transition-base);
+	}
+
+	.intro a:hover {
+		border-color: var(--ocean-300);
+	}
+
+	/* 友链网格 */
+	.links-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+		gap: var(--space-lg);
+		margin-bottom: var(--space-2xl);
+	}
+
+	.link-card {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--space-md);
+		background: var(--apple-glass);
+		backdrop-filter: var(--glass-blur);
+		-webkit-backdrop-filter: var(--glass-blur);
+		border: 1px solid var(--glass-border);
+		border-radius: 20px 24px 22px 23px;
+		padding: var(--space-lg);
+		text-decoration: none;
+		transition: all var(--transition-base);
+		box-shadow: var(--glass-shadow);
+		animation: fadeInUp 0.6s ease-out backwards;
+		position: relative;
+		overflow: hidden;
+	}
+
+	.link-card::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: -100%;
+		width: 100%;
+		height: 100%;
+		background: var(--shimmer-bg);
+		transition: left 0.8s cubic-bezier(0.32, 0.72, 0, 1);
+		pointer-events: none;
+	}
+
+	.link-card:hover::before {
+		left: 100%;
+	}
+
+	.link-card:nth-child(1) { animation-delay: 0.1s; }
+	.link-card:nth-child(2) { animation-delay: 0.15s; }
+	.link-card:nth-child(3) { animation-delay: 0.2s; }
+	.link-card:nth-child(4) { animation-delay: 0.25s; }
+	.link-card:nth-child(5) { animation-delay: 0.3s; }
+	.link-card:nth-child(6) { animation-delay: 0.35s; }
+
+	.link-card:hover {
+		transform: translateY(-4px);
+		box-shadow: 0 12px 40px rgba(42, 40, 38, 0.12);
+		border-color: rgba(122, 139, 110, 0.3);
+	}
+
+	.link-avatar {
+		flex-shrink: 0;
+		width: 56px;
+		height: 56px;
+	}
+
+	.link-avatar img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		border-radius: var(--radius-full);
+		border: 2px solid var(--glass-border);
+	}
+
+	.avatar-placeholder {
+		width: 100%;
+		height: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: var(--gradient-primary);
+		color: white;
+		font-size: 1.5rem;
+		font-weight: 700;
+		border-radius: var(--radius-full);
+	}
+
+	.link-info {
+		flex: 1;
+		min-width: 0;
+	}
+
+	.link-name {
+		font-size: 1.125rem;
+		font-weight: 600;
+		color: var(--text-primary);
+		margin-bottom: var(--space-xs);
+		line-height: 1.3;
+	}
+
+	.link-description {
+		font-size: 0.875rem;
+		color: var(--text-secondary);
+		line-height: 1.5;
+		margin-bottom: var(--space-sm);
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+
+	.link-url {
+		font-size: 0.75rem;
+		color: var(--accent);
+		font-weight: 500;
+	}
+
+	/* 申请友链区域 */
+	.apply-section {
+		background: var(--glass-bg);
+		backdrop-filter: var(--glass-blur);
+		-webkit-backdrop-filter: var(--glass-blur);
+		border-radius: var(--radius-xl);
+		border: 1px solid var(--glass-border);
+		padding: var(--space-xl);
+		animation: fadeInUp 0.6s ease-out 0.2s backwards;
+	}
+
+	.apply-section h2 {
+		font-size: 1.5rem;
+		margin-bottom: var(--space-md);
+		color: var(--text-primary);
+	}
+
+	.apply-info p {
+		color: var(--text-secondary);
+		line-height: 1.7;
+		margin-bottom: var(--space-md);
+	}
+
+	.apply-info h3 {
+		font-size: 1.125rem;
+		margin-bottom: var(--space-sm);
+		color: var(--text-primary);
+	}
+
+	.site-info {
+		list-style: none;
+		padding: 0;
+		margin: var(--space-md) 0 var(--space-lg);
+	}
+
+	.site-info li {
+		padding: var(--space-xs) 0;
+		color: var(--text-secondary);
+		line-height: 1.6;
+	}
+
+	.site-info strong {
+		color: var(--text-primary);
+		font-weight: 600;
+	}
+
+	.apply-note {
+		padding: var(--space-md);
+		background: rgba(245, 242, 237, 0.6);
+		border-left: 3px solid var(--accent);
+		border-radius: var(--radius-md);
+		font-size: 0.9375rem;
+	}
+
+	.apply-note a {
+		color: var(--ocean-300);
+		text-decoration: none;
+		font-weight: 500;
+	}
+
+	/* 空状态 */
+	.empty-state {
+		text-align: center;
+		padding: var(--space-3xl);
+		color: var(--text-secondary);
+	}
+
+	@keyframes fadeInUp {
+		from {
+			opacity: 0;
+			transform: translateY(20px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	/* 响应式 */
+	@media (max-width: 768px) {
+		.container {
+			padding: var(--space-xl) var(--space-md);
+		}
+
+		.title {
+			font-size: 2.25rem;
+		}
+
+		.links-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.link-card {
+			padding: var(--space-md);
+		}
+	}
+</style>

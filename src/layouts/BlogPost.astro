@@ -8,6 +8,7 @@ import Header from '../components/Header.astro';
 import BackToTop from '../components/BackToTop.astro';
 import ReadingProgress from '../components/ReadingProgress.astro';
 import TableOfContents from '../components/TableOfContents.astro';
+import ShareButtons from '../components/ShareButtons.astro';
 
 type Props = CollectionEntry<'blog'>['data'];
 
@@ -211,6 +212,7 @@ const { title, description, pubDate, updatedDate, heroImage, tags } = Astro.prop
 						)}
 					</div>
 					<slot />
+					<ShareButtons title={title} description={description} />
 				</div>
 			</article>
 		</main>

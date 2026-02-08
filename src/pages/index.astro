@@ -2,6 +2,7 @@
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
+import BackToTop from '../components/BackToTop.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 import { getCollection } from 'astro:content';
 import { getReadingTime, formatWordCount } from '../utils/reading-time';
@@ -65,6 +66,7 @@ const sortedPosts = postsWithReadingTime.sort(
 				))}
 			</section>
 		</main>
+		<BackToTop />
 		<Footer />
 	</body>
 </html>

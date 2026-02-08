@@ -26,35 +26,51 @@ const { title, description, pubDate, updatedDate, heroImage, tags } = Astro.prop
 			}
 			.hero-image {
 				width: 100%;
+				margin-bottom: var(--space-2xl);
 			}
 			.hero-image img {
 				display: block;
 				margin: 0 auto;
-				border-radius: 12px;
-				box-shadow: var(--box-shadow);
+				border-radius: var(--radius-xl);
+				box-shadow: var(--shadow-lg);
+				border: 1px solid var(--glass-border);
 			}
 			.prose {
 				width: 720px;
 				max-width: calc(100% - 2em);
 				margin: auto;
-				padding: 1em;
-				color: rgb(var(--gray-dark));
+				padding: var(--space-xl);
+				background: var(--glass-bg);
+				backdrop-filter: var(--glass-blur);
+				-webkit-backdrop-filter: var(--glass-blur);
+				border-radius: var(--radius-xl);
+				border: 1px solid var(--glass-border);
+				box-shadow: var(--glass-shadow);
 			}
 			.title {
-				margin-bottom: 1em;
-				padding: 1em 0;
+				margin-bottom: var(--space-lg);
+				padding: var(--space-lg) 0;
 				text-align: center;
-				line-height: 1;
+				line-height: 1.2;
 			}
 			.title h1 {
-				margin: 0 0 0.5em 0;
+				margin: 0 0 var(--space-md) 0;
+				font-size: 2.5rem;
+				font-weight: 800;
+				background: var(--gradient-primary);
+				-webkit-background-clip: text;
+				-webkit-text-fill-color: transparent;
+				background-clip: text;
+				letter-spacing: -0.03em;
 			}
 			.date {
-				margin-bottom: 0.5em;
-				color: rgb(var(--gray));
+				margin-bottom: var(--space-sm);
+				color: var(--text-secondary);
+				font-size: 0.9375rem;
 			}
 			.last-updated-on {
 				font-style: italic;
+				font-size: 0.875rem;
 			}
 
 			/* 代码块包装器样式 */
@@ -110,42 +126,55 @@ const { title, description, pubDate, updatedDate, heroImage, tags } = Astro.prop
 				background: var(--accent-dark);
 			}
 
-			/* 文章标签样式 */
+			/* 文章标签样式 - 玻璃拟态 */
 			.post-tags {
 				display: flex;
-				gap: 0.5rem;
+				gap: var(--space-sm);
 				flex-wrap: wrap;
-				margin-top: 1rem;
+				margin-top: var(--space-md);
+				justify-content: center;
 			}
 
 			.tag {
-				display: inline-block;
-				padding: 0.3rem 0.8rem;
-				background: rgba(var(--gray), 0.1);
-				color: var(--accent-color);
-				border-radius: 16px;
-				font-size: 0.85rem;
+				display: inline-flex;
+				align-items: center;
+				gap: var(--space-xs);
+				padding: var(--space-xs) var(--space-md);
+				background: var(--glass-bg);
+				backdrop-filter: blur(8px);
+				-webkit-backdrop-filter: blur(8px);
+				color: var(--accent);
+				border-radius: var(--radius-full);
+				font-size: 0.875rem;
+				font-weight: 600;
 				text-decoration: none;
-				transition: all 0.2s ease;
-				border: 1px solid transparent;
+				border: 1px solid var(--glass-border);
+				transition: all var(--transition-base);
+				box-shadow: var(--shadow-sm);
+			}
+
+			.tag::before {
+				content: '#';
+				opacity: 0.7;
 			}
 
 			.tag:hover {
-				background: var(--accent-color);
+				background: var(--gradient-primary);
 				color: white;
-				transform: translateY(-2px);
-				box-shadow: 0 2px 8px rgba(var(--gray), 0.2);
+				border-color: transparent;
+				transform: translateY(-3px);
+				box-shadow: var(--button-shadow-hover);
 			}
 
 			/* 暗色模式标签样式 */
 			[data-theme='dark'] .tag {
-				background: rgba(99, 102, 241, 0.15);
-				border-color: rgba(99, 102, 241, 0.3);
+				background: rgba(139, 92, 246, 0.15);
+				border-color: rgba(139, 92, 246, 0.3);
 			}
 
 			[data-theme='dark'] .tag:hover {
-				background: var(--accent-color);
-				border-color: var(--accent-color);
+				background: var(--gradient-primary);
+				border-color: transparent;
 			}
 		</style>
 	</head>

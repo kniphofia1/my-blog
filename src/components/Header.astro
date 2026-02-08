@@ -45,15 +45,30 @@ import ThemeToggle from './ThemeToggle.astro';
 		z-index: 100;
 		margin: 0;
 		padding: var(--space-md) var(--space-xl);
-		background: rgba(255, 255, 255, 0.8);
-		backdrop-filter: blur(12px);
-		border-bottom: 1px solid var(--border-color);
-		box-shadow: var(--shadow-sm);
+		background: var(--glass-bg);
+		backdrop-filter: var(--glass-blur);
+		-webkit-backdrop-filter: var(--glass-blur);
+		border-bottom: 1px solid var(--glass-border);
+		box-shadow: var(--glass-shadow);
 		transition: all var(--transition-base);
+		animation: slideDown 0.5s ease-out;
+	}
+
+	/* Header 滑入动画 */
+	@keyframes slideDown {
+		from {
+			opacity: 0;
+			transform: translateY(-100%);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
 	}
 
 	[data-theme='dark'] header {
-		background: rgba(12, 10, 9, 0.8);
+		background: rgba(17, 24, 39, 0.6);
+		border-color: rgba(139, 92, 246, 0.2);
 	}
 
 	h2 {
@@ -65,10 +80,29 @@ import ThemeToggle from './ThemeToggle.astro';
 	h2 a,
 	h2 a.active {
 		text-decoration: none;
-		background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+		background: var(--gradient-primary);
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
 		background-clip: text;
+		position: relative;
+	}
+
+	h2 a::after {
+		content: '';
+		position: absolute;
+		bottom: -2px;
+		left: 0;
+		width: 100%;
+		height: 2px;
+		background: var(--gradient-primary);
+		transform: scaleX(0);
+		transform-origin: right;
+		transition: transform var(--transition-base);
+	}
+
+	h2 a:hover::after {
+		transform: scaleX(1);
+		transform-origin: left;
 	}
 
 	nav {
@@ -115,10 +149,10 @@ import ThemeToggle from './ThemeToggle.astro';
 		gap: var(--space-lg);
 	}
 
-	/* 社交链接 */
+	/* 社交链接 - 玻璃拟态 */
 	.social-links {
 		display: flex;
-		gap: var(--space-sm);
+		gap: var(--space-md);
 		align-items: center;
 	}
 
@@ -126,28 +160,34 @@ import ThemeToggle from './ThemeToggle.astro';
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: 40px;
-		height: 40px;
+		width: 44px;
+		height: 44px;
 		color: var(--text-secondary);
-		border-radius: var(--radius-md);
+		border-radius: var(--radius-full);
+		background: var(--glass-bg);
+		backdrop-filter: var(--glass-blur);
+		-webkit-backdrop-filter: var(--glass-blur);
+		border: 1px solid var(--glass-border);
 		transition: all var(--transition-base);
 		position: relative;
 		overflow: hidden;
+		box-shadow: var(--shadow-sm);
 	}
 
 	.social-links a::before {
 		content: '';
 		position: absolute;
 		inset: 0;
-		background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+		background: var(--gradient-primary);
 		opacity: 0;
 		transition: opacity var(--transition-base);
 	}
 
 	.social-links a:hover {
 		color: white;
-		transform: translateY(-2px);
+		transform: translateY(-3px) rotate(5deg);
 		box-shadow: var(--button-shadow-hover);
+		border-color: transparent;
 	}
 
 	.social-links a:hover::before {
@@ -157,8 +197,13 @@ import ThemeToggle from './ThemeToggle.astro';
 	.social-links a svg {
 		position: relative;
 		z-index: 1;
-		width: 20px;
-		height: 20px;
+		width: 22px;
+		height: 22px;
+		transition: transform var(--transition-base);
+	}
+
+	.social-links a:hover svg {
+		transform: scale(1.1);
 	}
 
 	/* 响应式设计 */

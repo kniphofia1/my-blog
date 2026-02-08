@@ -40,63 +40,156 @@ import ThemeToggle from './ThemeToggle.astro';
 </header>
 <style>
 	header {
+		position: sticky;
+		top: 0;
+		z-index: 100;
 		margin: 0;
-		padding: 0 1em;
-		background: white;
-		box-shadow: 0 2px 8px rgba(var(--black), 5%);
-		transition: background 0.3s ease;
+		padding: var(--space-md) var(--space-xl);
+		background: rgba(255, 255, 255, 0.8);
+		backdrop-filter: blur(12px);
+		border-bottom: 1px solid var(--border-color);
+		box-shadow: var(--shadow-sm);
+		transition: all var(--transition-base);
 	}
+
+	[data-theme='dark'] header {
+		background: rgba(12, 10, 9, 0.8);
+	}
+
 	h2 {
 		margin: 0;
-		font-size: 1em;
+		font-size: 1.25rem;
+		font-weight: 700;
 	}
 
 	h2 a,
 	h2 a.active {
 		text-decoration: none;
+		background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		background-clip: text;
 	}
+
 	nav {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: 1rem;
+		gap: var(--space-lg);
+		max-width: 1400px;
+		margin: 0 auto;
 	}
-	nav a {
-		padding: 1em 0.5em;
-		color: var(--black);
-		border-bottom: 4px solid transparent;
-		text-decoration: none;
+
+	/* 内部导航链接 */
+	.internal-links {
+		display: flex;
+		gap: var(--space-xs);
+		align-items: center;
 	}
-	nav a.active {
+
+	.internal-links a {
+		padding: var(--space-sm) var(--space-md);
+		color: var(--text-secondary);
+		border-bottom: 2px solid transparent;
 		text-decoration: none;
+		font-size: 0.9375rem;
+		font-weight: 500;
+		transition: all var(--transition-fast);
+		border-radius: var(--radius-sm);
+	}
+
+	.internal-links a:hover {
+		color: var(--accent);
+		background: var(--bg-tertiary);
+	}
+
+	.internal-links a.active {
+		color: var(--accent);
 		border-bottom-color: var(--accent);
 	}
 
+	/* 右侧区域 */
 	.nav-right {
 		display: flex;
 		align-items: center;
-		gap: 1.5rem;
+		gap: var(--space-lg);
 	}
 
-	.social-links,
+	/* 社交链接 */
+	.social-links {
+		display: flex;
+		gap: var(--space-sm);
+		align-items: center;
+	}
+
 	.social-links a {
 		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 40px;
+		height: 40px;
+		color: var(--text-secondary);
+		border-radius: var(--radius-md);
+		transition: all var(--transition-base);
+		position: relative;
+		overflow: hidden;
 	}
 
-	@media (max-width: 720px) {
+	.social-links a::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+		opacity: 0;
+		transition: opacity var(--transition-base);
+	}
+
+	.social-links a:hover {
+		color: white;
+		transform: translateY(-2px);
+		box-shadow: var(--button-shadow-hover);
+	}
+
+	.social-links a:hover::before {
+		opacity: 1;
+	}
+
+	.social-links a svg {
+		position: relative;
+		z-index: 1;
+		width: 20px;
+		height: 20px;
+	}
+
+	/* 响应式设计 */
+	@media (max-width: 768px) {
+		header {
+			padding: var(--space-sm) var(--space-md);
+		}
+
 		nav {
 			flex-wrap: wrap;
-			gap: 0.5rem;
+			gap: var(--space-sm);
+		}
+
+		h2 {
+			font-size: 1.125rem;
 		}
 
 		.internal-links {
 			order: 1;
 			flex: 1;
+			gap: 0;
+		}
+
+		.internal-links a {
+			padding: var(--space-xs) var(--space-sm);
+			font-size: 0.875rem;
 		}
 
 		.nav-right {
 			order: 2;
-			gap: 0.5rem;
+			gap: var(--space-sm);
 		}
 
 		.social-links {

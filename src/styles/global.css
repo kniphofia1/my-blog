@@ -1,11 +1,11 @@
 /*
   ========================================
-  专业设计系统 - Glassmorphism Evolution
+  专业设计系统 - Biophilic Nordic Apple Glass
   ========================================
-  风格: 玻璃拟态 + 现代渐变
+  风格: 亲生物设计 + 北欧产品风格 + 苹果玻璃拟态
   字体: Inter (Google Fonts)
-  配色: Violet + Fuchsia + Cyan 渐变
-  设计原则: 透明层级、毛玻璃效果、优雅动画
+  配色: 北欧自然色系（大地、森林、深海）
+  设计原则: 有机形状、自然光效、极简优雅
   ========================================
 */
 
@@ -13,78 +13,95 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 /* ========================================
-   CSS 变量系统 - Glassmorphism 亮色模式
+   CSS 变量系统 - 北欧自然风格亮色模式
    ======================================== */
 :root {
-	/* 渐变主色 - Violet to Fuchsia */
-	--accent-from: #8B5CF6;
-	--accent-via: #A78BFA;
-	--accent-to: #EC4899;
-	--accent: #8B5CF6;
-	--accent-dark: #7C3AED;
-	--accent-light: #A78BFA;
-	--accent-hover: #7C3AED;
+	/* 北欧自然色系 - 森林与海洋 */
+	--accent-from: #7A8B6E; /* 苔藓绿 */
+	--accent-via: #5C7A99; /* 石板蓝 */
+	--accent-to: #5C6B54; /* 橄榄绿 */
+	--accent: #5C7A99;
+	--accent-dark: #3D5A80;
+	--accent-light: #98C1D9;
+	--accent-hover: #4A6278;
 
-	/* 渐变强调色 - Cyan to Blue */
-	--highlight-from: #06B6D4;
-	--highlight-to: #3B82F6;
-	--highlight: #06B6D4;
-	--highlight-dark: #0891B2;
+	/* 强调色 - 暖木色系 */
+	--highlight-from: #C4A77D; /* 浅橡木 */
+	--highlight-to: #D4B896; /* 暖木色 */
+	--highlight: #C4A77D;
+	--highlight-dark: #A8906C;
 
-	/* 玻璃拟态背景 - 渐变球体 */
-	--gradient-bg-1: #8B5CF6;
-	--gradient-bg-2: #EC4899;
-	--gradient-bg-3: #06B6D4;
-	--gradient-bg-4: #F59E0B;
+	/* 北欧大地色系 */
+	--sand-50: #FAF9F6; /* 象牙白 */
+	--sand-100: #F5F2ED; /* 浅沙色 */
+	--sand-200: #E8E3DD; /* 暖沙色 */
+	--sand-300: #D8D2C9; /* 中沙色 */
+	--sand-400: #C4BDB3; /* 深沙色 */
 
-	/* 中性色系 - 精致灰色 */
-	--gray-50: #F9FAFB;
-	--gray-100: #F3F4F6;
-	--gray-200: #E5E7EB;
-	--gray-300: #D1D5DB;
-	--gray-400: #9CA3AF;
-	--gray-500: #6B7280;
-	--gray-600: #4B5563;
-	--gray-700: #374151;
-	--gray-800: #1F2937;
-	--gray-900: #111827;
+	/* 森林绿系 */
+	--forest-100: #8B9A82; /* 鼠尾草绿 */
+	--forest-200: #7A8B6E; /* 苔藓绿 */
+	--forest-300: #5C6B54; /* 橄榄绿 */
+
+	/* 深海蓝系 */
+	--ocean-100: #98C1D9; /* 天蓝 */
+	--ocean-200: #5C7A99; /* 石板蓝 */
+	--ocean-300: #3D5A80; /* 深海蓝 */
+	--ocean-400: #293241; /* 深蓝灰 */
+
+	/* 精致灰系 */
+	--gray-50: #FAFAFA;
+	--gray-100: #F5F5F5;
+	--gray-200: #EAE8E3;
+	--gray-300: #D8D6D1;
+	--gray-400: #9C9992;
+	--gray-500: #6B6862;
+	--gray-600: #4A4640;
+	--gray-700: #3A3632;
+	--gray-800: #2A2826;
+	--gray-900: #1A1918;
 
 	/* 语义化颜色 */
 	--text-primary: var(--gray-900);
 	--text-secondary: var(--gray-600);
 	--text-tertiary: var(--gray-500);
-	--bg-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-	--bg-secondary: rgba(255, 255, 255, 0.7);
-	--bg-tertiary: rgba(243, 244, 246, 0.5);
-	--border-color: rgba(229, 231, 235, 0.6);
-	--border-hover: rgba(139, 92, 246, 0.3);
+	--bg-primary: #F5F2ED;
+	--bg-secondary: rgba(255, 255, 255, 0.85);
+	--bg-tertiary: rgba(245, 242, 237, 0.6);
+	--border-color: rgba(232, 227, 221, 0.8);
+	--border-hover: rgba(92, 122, 153, 0.4);
 
-	/* 玻璃拟态卡片系统 */
-	--glass-bg: rgba(255, 255, 255, 0.25);
-	--glass-bg-hover: rgba(255, 255, 255, 0.4);
-	--glass-border: rgba(255, 255, 255, 0.5);
-	--glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
-	--glass-blur: blur(12px);
+	/* 苹果风格玻璃拟态 */
+	--glass-bg: rgba(255, 255, 255, 0.65);
+	--glass-bg-hover: rgba(255, 255, 255, 0.8);
+	--glass-border: rgba(255, 255, 255, 0.7);
+	--glass-shadow: 0 8px 32px rgba(42, 40, 38, 0.08);
+	--glass-blur: blur(20px) saturate(180%);
+	--apple-glass: rgba(255, 255, 255, 0.72);
 
-	/* 渐变系统 */
-	--gradient-primary: linear-gradient(135deg, var(--accent-from) 0%, var(--accent-to) 100%);
+	/* 自然渐变系统 */
+	--gradient-primary: linear-gradient(135deg, var(--forest-200) 0%, var(--ocean-200) 100%);
 	--gradient-secondary: linear-gradient(135deg, var(--highlight-from) 0%, var(--highlight-to) 100%);
-	--gradient-glow: radial-gradient(circle at center, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+	--gradient-glow: radial-gradient(ellipse at center, rgba(122, 139, 110, 0.12) 0%, transparent 70%);
+	--gradient-nature: linear-gradient(180deg, #F5F2ED 0%, #E8E3DD 100%);
 
-	/* 按钮系统 - 玻璃拟态 */
+	/* 亲生物设计 - 有机形状 */
+	--blob-1: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%237A8B6E' d='M44.7,-76.4C58.9,-69.2,71.8,-59.1,79.6,-45.8C87.4,-32.5,90.1,-16.3,87.9,-1.3C85.7,13.7,78.6,27.4,69.4,38.9C60.2,50.4,48.9,59.7,37.2,66.3C25.5,72.9,13.4,76.8,1.1,74.5C-11.2,72.2,-22.4,63.7,-33.8,55.8C-45.2,47.9,-56.8,40.6,-64.5,30.4C-72.2,20.2,-76,7.1,-75.7,-5.8C-75.4,-18.7,-71,-31.4,-63.1,-42.3C-55.2,-53.2,-43.8,-62.3,-31.9,-69.8C-20,-77.3,-7.6,-83.2,4.3,-84.8C16.2,-86.4,30.5,-83.6,44.7,-76.4Z' transform='translate(100 100)' /%3E%3C/svg%3E");
+
+	/* 按钮系统 - 自然风格 */
 	--button-bg: var(--gradient-primary);
-	--button-bg-hover: linear-gradient(135deg, var(--accent-dark) 0%, var(--accent-to) 100%);
+	--button-bg-hover: linear-gradient(135deg, var(--forest-300) 0%, var(--ocean-300) 100%);
 	--button-text: #FFFFFF;
-	--button-radius: 12px;
-	--button-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
-	--button-shadow-hover: 0 6px 20px rgba(139, 92, 246, 0.5);
+	--button-radius: 14px;
+	--button-shadow: 0 4px 16px rgba(92, 107, 84, 0.25);
+	--button-shadow-hover: 0 6px 20px rgba(92, 107, 84, 0.35);
 
 	/* 链接 */
-	--link-color: var(--accent);
-	--link-hover: var(--accent-dark);
+	--link-color: var(--ocean-300);
+	--link-hover: var(--ocean-400);
 	--link-underline: transparent;
 
-	/* 间距系统 (8px 基准) */
+	/* 间距系统 */
 	--space-xs: 0.25rem;
 	--space-sm: 0.5rem;
 	--space-md: 1rem;
@@ -93,81 +110,74 @@
 	--space-2xl: 3rem;
 	--space-3xl: 4rem;
 
-	/* 圆角系统 - 更柔和 */
-	--radius-sm: 6px;
-	--radius-md: 10px;
-	--radius-lg: 16px;
-	--radius-xl: 20px;
-	--radius-2xl: 24px;
+	/* 圆角系统 - 有机曲线 */
+	--radius-sm: 8px;
+	--radius-md: 12px;
+	--radius-lg: 18px;
+	--radius-xl: 24px;
+	--radius-2xl: 32px;
 	--radius-full: 9999px;
 
-	/* 过渡动画 - 更流畅 */
-	--transition-fast: 200ms cubic-bezier(0.4, 0, 0.2, 1);
-	--transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
-	--transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+	/* 过渡动画 - 自然流畅 */
+	--transition-fast: 250ms cubic-bezier(0.32, 0.72, 0, 1);
+	--transition-base: 400ms cubic-bezier(0.32, 0.72, 0, 1);
+	--transition-slow: 600ms cubic-bezier(0.32, 0.72, 0, 1);
 
-	/* 阴影系统 - 玻璃拟态 */
-	--shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-	--shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
-	--shadow-lg: 0 8px 32px rgba(31, 38, 135, 0.15);
-	--shadow-xl: 0 16px 48px rgba(31, 38, 135, 0.2);
-	--shadow-inner: inset 0 2px 8px rgba(0, 0, 0, 0.05);
+	/* 阴影系统 - 柔和自然 */
+	--shadow-sm: 0 2px 8px rgba(42, 40, 38, 0.06);
+	--shadow-md: 0 4px 16px rgba(42, 40, 38, 0.08);
+	--shadow-lg: 0 8px 32px rgba(42, 40, 38, 0.1);
+	--shadow-xl: 0 16px 48px rgba(42, 40, 38, 0.12);
+	--shadow-inner: inset 0 2px 8px rgba(42, 40, 38, 0.04);
 
-	/* 微光效果 */
+	/* 自然光效 */
 	--shimmer-bg: linear-gradient(
-		90deg,
-		rgba(255, 255, 255, 0) 0%,
-		rgba(255, 255, 255, 0.5) 50%,
-		rgba(255, 255, 255, 0) 100%
+		120deg,
+		transparent 0%,
+		rgba(255, 255, 255, 0.6) 50%,
+		transparent 100%
 	);
 }
 
 /* ========================================
-   CSS 变量系统 - Glassmorphism 暗色模式
+   CSS 变量系统 - 北欧暗色模式
    ======================================== */
 [data-theme='dark'] {
-	/* 渐变主色 - 暗色优化 */
-	--accent-from: #A78BFA;
-	--accent-via: #C4B5FD;
-	--accent-to: #F472B6;
-	--accent: #A78BFA;
-	--accent-dark: #8B5CF6;
-	--accent-light: #C4B5FD;
-	--accent-hover: #8B5CF6;
+	/* 北欧暗色系 - 深邃森林 */
+	--accent-from: #8B9A82;
+	--accent-via: #7A8B6E;
+	--accent-to: #98C1D9;
+	--accent: #7A8B6E;
+	--accent-dark: #5C6B54;
+	--accent-light: #A8B8A0;
+	--accent-hover: #8B9A82;
 
-	/* 渐变强调色 - 暗色优化 */
-	--highlight-from: #22D3EE;
-	--highlight-to: #60A5FA;
-	--highlight: #22D3EE;
-	--highlight-dark: #06B6D4;
-
-	/* 玻璃拟态背景 - 暗色渐变 */
-	--gradient-bg-1: #7C3AED;
-	--gradient-bg-2: #DB2777;
-	--gradient-bg-3: #0891B2;
-	--gradient-bg-4: #D97706;
+	/* 暗色暖木 */
+	--highlight-from: #D4B896;
+	--highlight-to: #E0CCAA;
+	--highlight: #D4B896;
+	--highlight-dark: #C4A77D;
 
 	/* 语义化颜色 - 暗色 */
 	--text-primary: var(--gray-100);
 	--text-secondary: var(--gray-400);
 	--text-tertiary: var(--gray-500);
-	--bg-primary: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
-	--bg-secondary: rgba(17, 24, 39, 0.7);
-	--bg-tertiary: rgba(31, 41, 55, 0.5);
-	--border-color: rgba(75, 85, 99, 0.5);
-	--border-hover: rgba(139, 92, 246, 0.4);
+	--bg-primary: #1A1918;
+	--bg-secondary: rgba(42, 40, 38, 0.7);
+	--bg-tertiary: rgba(58, 54, 50, 0.5);
+	--border-color: rgba(92, 107, 84, 0.3);
+	--border-hover: rgba(122, 139, 110, 0.4);
 
-	/* 玻璃拟态卡片 - 暗色 */
-	--glass-bg: rgba(17, 24, 39, 0.4);
-	--glass-bg-hover: rgba(17, 24, 39, 0.6);
-	--glass-border: rgba(139, 92, 246, 0.2);
-	--glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-	--glass-blur: blur(16px);
+	/* 暗色玻璃拟态 */
+	--glass-bg: rgba(42, 40, 38, 0.6);
+	--glass-bg-hover: rgba(58, 54, 50, 0.75);
+	--glass-border: rgba(122, 139, 110, 0.25);
+	--glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 
-	/* 渐变系统 - 暗色 */
-	--gradient-primary: linear-gradient(135deg, var(--accent-from) 0%, var(--accent-to) 100%);
+	/* 暗色渐变 */
+	--gradient-primary: linear-gradient(135deg, var(--forest-100) 0%, var(--ocean-100) 100%);
 	--gradient-secondary: linear-gradient(135deg, var(--highlight-from) 0%, var(--highlight-to) 100%);
-	--gradient-glow: radial-gradient(circle at center, rgba(139, 92, 246, 0.25) 0%, transparent 70%);
+	--gradient-glow: radial-gradient(ellipse at center, rgba(122, 139, 110, 0.18) 0%, transparent 70%);
 }
 
 /* ========================================
@@ -197,58 +207,65 @@ body {
 	position: relative;
 }
 
-/* 玻璃拟态背景装饰球体 */
-body::before,
+/* 亲生物设计 - 有机形状装饰 */
+body::before {
+	content: '';
+	position: fixed;
+	top: -10%;
+	right: -5%;
+	width: 500px;
+	height: 500px;
+	background: radial-gradient(ellipse, var(--forest-200) 0%, transparent 70%);
+	opacity: 0.15;
+	filter: blur(60px);
+	border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+	animation: organicFloat 25s ease-in-out infinite;
+	z-index: -1;
+	pointer-events: none;
+}
+
 body::after {
 	content: '';
 	position: fixed;
-	border-radius: 50%;
-	filter: blur(80px);
-	opacity: 0.5;
+	bottom: -10%;
+	left: -5%;
+	width: 450px;
+	height: 450px;
+	background: radial-gradient(ellipse, var(--ocean-200) 0%, transparent 70%);
+	opacity: 0.12;
+	filter: blur(70px);
+	border-radius: 40% 60% 70% 30% / 40% 70% 30% 60%;
+	animation: organicFloat 30s ease-in-out infinite reverse;
 	z-index: -1;
 	pointer-events: none;
-	animation: float 20s ease-in-out infinite;
 }
 
-body::before {
-	width: 600px;
-	height: 600px;
-	background: var(--gradient-bg-1);
-	top: -200px;
-	left: -200px;
-	animation-delay: 0s;
-}
-
-body::after {
-	width: 500px;
-	height: 500px;
-	background: var(--gradient-bg-2);
-	bottom: -150px;
-	right: -150px;
-	animation-delay: -10s;
+/* 自然流动动画 */
+@keyframes organicFloat {
+	0%, 100% {
+		transform: translate(0, 0) rotate(0deg) scale(1);
+		border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+	}
+	25% {
+		transform: translate(30px, -50px) rotate(5deg) scale(1.05);
+		border-radius: 50% 50% 40% 60% / 50% 60% 40% 50%;
+	}
+	50% {
+		transform: translate(-20px, 20px) rotate(-5deg) scale(0.95);
+		border-radius: 40% 60% 60% 40% / 60% 40% 60% 40%;
+	}
+	75% {
+		transform: translate(50px, 30px) rotate(3deg) scale(1.02);
+		border-radius: 55% 45% 35% 65% / 55% 35% 65% 45%;
+	}
 }
 
 [data-theme='dark'] body::before {
-	background: var(--gradient-bg-1);
-	opacity: 0.3;
+	opacity: 0.1;
 }
 
 [data-theme='dark'] body::after {
-	background: var(--gradient-bg-2);
-	opacity: 0.3;
-}
-
-/* 浮动动画 */
-@keyframes float {
-	0%, 100% {
-		transform: translate(0, 0) scale(1);
-	}
-	33% {
-		transform: translate(30px, -30px) scale(1.1);
-	}
-	66% {
-		transform: translate(-20px, 20px) scale(0.9);
-	}
+	opacity: 0.08;
 }
 
 /* ========================================
@@ -281,37 +298,43 @@ h1, h2, h3, h4, h5, h6 {
 h1 {
 	font-size: 2.75rem;
 	line-height: 1.15;
-	font-weight: 800;
+	font-weight: 700;
 	background: var(--gradient-primary);
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 	background-clip: text;
+	letter-spacing: -0.02em;
 }
 
 h2 {
 	font-size: 2.25rem;
 	line-height: 1.25;
-	font-weight: 700;
+	font-weight: 600;
+	color: var(--text-primary);
 }
 
 h3 {
 	font-size: 1.75rem;
 	font-weight: 600;
+	color: var(--text-primary);
 }
 
 h4 {
 	font-size: 1.375rem;
 	font-weight: 600;
+	color: var(--text-primary);
 }
 
 h5 {
 	font-size: 1.125rem;
 	font-weight: 600;
+	color: var(--text-primary);
 }
 
 h6 {
 	font-size: 1rem;
 	font-weight: 600;
+	color: var(--text-primary);
 }
 
 @media (max-width: 768px) {

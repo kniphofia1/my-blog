@@ -1,0 +1,302 @@
+---
+// 文章目录组件
+---
+
+<div id="table-of-contents" class="toc-container">
+	<div class="toc-header">
+		<h3>目录</h3>
+	</div>
+	<nav class="toc-nav" id="toc-nav">
+		<ul class="toc-list"></ul>
+	</nav>
+</div>
+
+<style>
+	.toc-container {
+		position: fixed;
+		top: 50%;
+		right: 2rem;
+		transform: translateY(-50%);
+		background: var(--card-bg);
+		border: 1px solid var(--border-color);
+		border-radius: 12px;
+		padding: 1.5rem;
+		max-width: 280px;
+		max-height: 70vh;
+		overflow-y: auto;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+		transition: all 0.3s ease;
+		z-index: 100;
+		backdrop-filter: blur(10px);
+	}
+
+	.toc-header {
+		margin-bottom: 1rem;
+		padding-bottom: 0.5rem;
+		border-bottom: 2px solid var(--accent-color);
+	}
+
+	.toc-header h3 {
+		margin: 0;
+		font-size: 1.2rem;
+		color: var(--text-primary);
+		font-weight: 600;
+	}
+
+	.toc-nav {
+		overflow-y: auto;
+	}
+
+	.toc-list {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
+
+	.toc-item {
+		margin: 0.5rem 0;
+	}
+
+	.toc-link {
+		display: block;
+		padding: 0.4rem 0.8rem;
+		color: var(--text-secondary);
+		text-decoration: none;
+		border-left: 3px solid transparent;
+		transition: all 0.2s ease;
+		font-size: 0.95rem;
+		line-height: 1.5;
+	}
+
+	.toc-link:hover {
+		color: var(--accent-color);
+		border-left-color: var(--accent-color);
+		background: rgba(var(--gray), 0.05);
+		transform: translateX(2px);
+	}
+
+	.toc-link.active {
+		color: var(--accent-color);
+		border-left-color: var(--accent-color);
+		background: rgba(var(--gray), 0.1);
+		font-weight: 600;
+	}
+
+	/* 二级、三级标题缩进 */
+	.toc-item.toc-level-2 .toc-link {
+		padding-left: 1.5rem;
+		font-size: 0.9rem;
+	}
+
+	.toc-item.toc-level-3 .toc-link {
+		padding-left: 2.2rem;
+		font-size: 0.85rem;
+	}
+
+	/* 滚动条样式 */
+	.toc-container::-webkit-scrollbar {
+		width: 6px;
+	}
+
+	.toc-container::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	.toc-container::-webkit-scrollbar-thumb {
+		background: var(--border-color);
+		border-radius: 3px;
+	}
+
+	.toc-container::-webkit-scrollbar-thumb:hover {
+		background: var(--gray);
+	}
+
+	/* 暗色模式 */
+	[data-theme='dark'] .toc-container {
+		background: rgba(30, 41, 59, 0.95);
+		border-color: var(--border-color);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+	}
+
+	[data-theme='dark'] .toc-link:hover {
+		background: rgba(255, 255, 255, 0.05);
+	}
+
+	[data-theme='dark'] .toc-link.active {
+		background: rgba(255, 255, 255, 0.1);
+	}
+
+	/* 响应式设计 */
+	@media (max-width: 1400px) {
+		.toc-container {
+			right: 1rem;
+			max-width: 240px;
+		}
+	}
+
+	@media (max-width: 1024px) {
+		.toc-container {
+			display: none;
+		}
+	}
+</style>
+
+<script>
+	// 等待页面加载完成
+	function initTableOfContents() {
+		const tocContainer = document.getElementById('table-of-contents');
+		const tocList = tocContainer?.querySelector('.toc-list');
+
+		if (!tocContainer || !tocList) return;
+
+		// 获取文章内容区域中的所有标题
+		const prose = document.querySelector('.prose');
+		if (!prose) return;
+
+		// 获取所有 h2, h3, h4 标题
+		const headings = prose.querySelectorAll('h2, h3, h4');
+
+		if (headings.length === 0) {
+			// 如果没有标题，隐藏目录
+			tocContainer.style.display = 'none';
+			return;
+		}
+
+		// 为每个标题生成 ID（如果没有的话）
+		headings.forEach((heading, index) => {
+			if (!heading.id) {
+				const text = heading.textContent?.trim() || '';
+				const baseId = text
+					.toLowerCase()
+					.replace(/[^\u4e00-\u9fa5a-z0-9\s-]/g, '') // 保留中文、字母、数字、空格和连字符
+					.replace(/\s+/g, '-') // 空格替换为连字符
+					.substring(0, 50); // 限制长度
+
+				heading.id = baseId || `heading-${index}`;
+			}
+		});
+
+		// 生成目录
+		headings.forEach((heading) => {
+			const level = parseInt(heading.tagName.substring(1)); // 2, 3, 4
+			const text = heading.textContent?.trim() || '';
+			const id = heading.id;
+
+			const listItem = document.createElement('li');
+			listItem.className = `toc-item toc-level-${level}`;
+
+			const link = document.createElement('a');
+			link.href = `#${id}`;
+			link.className = 'toc-link';
+			link.textContent = text;
+			link.dataset.target = id;
+
+			// 点击事件：平滑滚动到目标位置
+			link.addEventListener('click', (e) => {
+				e.preventDefault();
+				const target = document.getElementById(id);
+				if (target) {
+					target.scrollIntoView({
+						behavior: 'smooth',
+						block: 'start'
+					});
+
+					// 更新 URL（不跳转）
+					history.pushState(null, null, `#${id}`);
+				}
+			});
+
+			listItem.appendChild(link);
+			tocList.appendChild(listItem);
+		});
+
+		// 高亮当前可见的标题
+		const observerOptions = {
+			root: null,
+			rootMargin: '-10% 0px -70% 0px', // 视口中间区域
+			threshold: 0
+		};
+
+		const observer = new IntersectionObserver((entries) => {
+			entries.forEach((entry) => {
+				if (entry.isIntersecting) {
+					const id = entry.target.id;
+
+					// 移除所有 active 类
+					document.querySelectorAll('.toc-link').forEach((link) => {
+						link.classList.remove('active');
+					});
+
+					// 添加 active 类到当前标题
+					const activeLink = document.querySelector(`.toc-link[data-target="${id}"]`);
+					if (activeLink) {
+						activeLink.classList.add('active');
+					}
+				}
+			});
+		}, observerOptions);
+
+		// 观察所有标题
+		headings.forEach((heading) => {
+			observer.observe(heading);
+		});
+
+		// 处理页面滚动时的高亮
+		let currentActiveLink: HTMLElement | null = null;
+
+		function updateActiveLink() {
+			const scrollY = window.scrollY;
+			const windowHeight = window.innerHeight;
+
+			// 找到最接近视口顶部的标题
+			let closestHeading: HTMLElement | null = null;
+			let minDistance = Infinity;
+
+			headings.forEach((heading) => {
+				const rect = heading.getBoundingClientRect();
+				const distance = Math.abs(rect.top);
+
+				if (rect.top <= windowHeight * 0.3 && distance < minDistance) {
+					minDistance = distance;
+					closestHeading = heading;
+				}
+			});
+
+			// 更新 active 类
+			if (closestHeading) {
+				const id = closestHeading.id;
+				const newActiveLink = document.querySelector(`.toc-link[data-target="${id}"]`) as HTMLElement;
+
+				if (newActiveLink && newActiveLink !== currentActiveLink) {
+					if (currentActiveLink) {
+						currentActiveLink.classList.remove('active');
+					}
+					newActiveLink.classList.add('active');
+					currentActiveLink = newActiveLink;
+				}
+			}
+		}
+
+		// 监听滚动事件（使用 throttle 优化性能）
+		let ticking = false;
+		window.addEventListener('scroll', () => {
+			if (!ticking) {
+				window.requestAnimationFrame(() => {
+					updateActiveLink();
+					ticking = false;
+				});
+				ticking = true;
+			}
+		});
+
+		// 初始化时更新一次
+		updateActiveLink();
+	}
+
+	// 页面加载时初始化
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', initTableOfContents);
+	} else {
+		initTableOfContents();
+	}
+</script>

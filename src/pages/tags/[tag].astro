@@ -1,0 +1,331 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import Header from '../../components/Header.astro';
+import BackToTop from '../../components/BackToTop.astro';
+import ReadingProgress from '../../components/ReadingProgress.astro';
+import { getCollection } from 'astro:content';
+import { getReadingTime, formatWordCount } from '../../utils/reading-time';
+
+export async function getStaticPaths() {
+	const allPosts = await getCollection('blog');
+
+	// 收集所有标签
+	const tagsSet = new Set<string>();
+	allPosts.forEach((post) => {
+		if (post.data.tags) {
+			post.data.tags.forEach((tag) => tagsSet.add(tag));
+		}
+	});
+
+	// 为每个标签生成路由
+	return Array.from(tagsSet).map((tag) => ({
+		params: { tag },
+		props: { tag },
+	}));
+}
+
+const { tag } = Astro.props;
+const allPosts = await getCollection('blog');
+
+// 筛选带有当前标签的文章
+const tagPosts = allPosts
+	.filter((post) => post.data.tags?.includes(tag))
+	.map((post) => {
+		const content = post.body || '';
+		const readingTime = getReadingTime(content);
+		return { post, readingTime };
+	})
+	.sort((a, b) => b.post.data.pubDate.valueOf() - a.post.data.pubDate.valueOf());
+
+// 获取所有标签（用于侧边栏）
+const allTagsSet = new Set<string>();
+allPosts.forEach((post) => {
+	if (post.data.tags) {
+		post.data.tags.forEach((t) => allTagsSet.add(t));
+	}
+});
+const allTags = Array.from(allTagsSet).sort();
+---
+
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<BaseHead title={`标签: ${tag}`} description={`查看所有带有 ${tag} 标签的文章`} />
+	</head>
+	<body>
+		<ReadingProgress />
+		<Header />
+		<main class="container">
+			<div class="tag-page">
+				<div class="tag-header">
+					<h1 class="tag-title">#{tag}</h1>
+					<p class="tag-description">找到 {tagPosts.length} 篇文章</p>
+				</div>
+
+				<div class="tag-content-wrapper">
+					<!-- 文章列表 -->
+					<div class="posts-section">
+						<section class="posts-list">
+							{tagPosts.length > 0 ? (
+								tagPosts.map(({ post, readingTime }) => (
+									<article class="post-item">
+										<a href={`/blog/${post.id}/`} class="post-link">
+											<h2 class="post-title">{post.data.title}</h2>
+										</a>
+										<div class="post-meta">
+											<time datetime={post.data.pubDate.toISOString()}>
+												{post.data.pubDate.toLocaleDateString('zh-CN')}
+											</time>
+											<span class="post-stats">
+												{formatWordCount(readingTime.words)}字 · {readingTime.minutes}分钟
+											</span>
+										</div>
+										{post.data.description && (
+											<p class="post-description">{post.data.description}</p>
+										)}
+										{post.data.tags && post.data.tags.length > 0 && (
+											<div class="post-tags">
+												{post.data.tags.map((t) => (
+													<a
+														href={`/tags/${t}/`}
+														class={`tag ${t === tag ? 'active' : ''}`}
+													>
+														#{t}
+													</a>
+												))}
+											</div>
+										)}
+									</article>
+								))
+							) : (
+								<p class="no-posts">暂无文章</p>
+							)}
+						</section>
+					</div>
+
+					<!-- 所有标签侧边栏 -->
+					<aside class="tags-sidebar">
+						<h3>所有标签</h3>
+						<div class="all-tags">
+							{allTags.map((t) => (
+								<a href={`/tags/${t}/`} class={`tag ${t === tag ? 'active' : ''}`}>
+									#{t}
+									<span class="tag-count">
+										{
+											allPosts.filter((post) => post.data.tags?.includes(t)).length
+										}
+									</span>
+								</a>
+							))}
+						</div>
+					</aside>
+				</div>
+			</div>
+		</main>
+		<BackToTop />
+		<Footer />
+	</body>
+</html>
+
+<style>
+	.container {
+		max-width: 1200px;
+		margin: 0 auto;
+		padding: 2rem 1rem;
+	}
+
+	.tag-page {
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+	}
+
+	.tag-header {
+		text-align: center;
+		padding: 2rem 0;
+		border-bottom: 2px solid var(--accent-color);
+	}
+
+	.tag-title {
+		font-size: 2.5rem;
+		font-weight: 700;
+		margin-bottom: 0.5rem;
+		color: var(--accent-color);
+	}
+
+	.tag-description {
+		font-size: 1.1rem;
+		color: var(--text-secondary);
+		margin: 0;
+	}
+
+	.tag-content-wrapper {
+		display: grid;
+		grid-template-columns: 1fr 300px;
+		gap: 2rem;
+	}
+
+	/* 文章列表 */
+	.posts-list {
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+	}
+
+	.post-item {
+		padding: 1.5rem;
+		border-left: 3px solid var(--accent-color);
+		background: var(--card-bg);
+		border-radius: 8px;
+		transition: transform 0.2s, box-shadow 0.2s;
+	}
+
+	.post-item:hover {
+		transform: translateX(4px);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	}
+
+	.post-link {
+		text-decoration: none;
+		color: inherit;
+	}
+
+	.post-title {
+		font-size: 1.5rem;
+		font-weight: 600;
+		margin-bottom: 0.5rem;
+		color: var(--text-primary);
+	}
+
+	.post-meta {
+		font-size: 0.9rem;
+		color: var(--text-secondary);
+		margin-bottom: 0.5rem;
+		display: flex;
+		gap: 1rem;
+		align-items: center;
+		flex-wrap: wrap;
+	}
+
+	.post-stats {
+		background: var(--accent-color);
+		color: white;
+		padding: 0.2rem 0.6rem;
+		border-radius: 4px;
+		font-size: 0.85rem;
+		font-weight: 500;
+	}
+
+	.post-description {
+		color: var(--text-secondary);
+		line-height: 1.6;
+	}
+
+	.post-tags {
+		display: flex;
+		gap: 0.5rem;
+		flex-wrap: wrap;
+		margin-top: 0.8rem;
+	}
+
+	.tag {
+		display: inline-block;
+		padding: 0.3rem 0.8rem;
+		background: rgba(var(--gray), 0.1);
+		color: var(--accent-color);
+		border-radius: 16px;
+		font-size: 0.85rem;
+		text-decoration: none;
+		transition: all 0.2s ease;
+		border: 1px solid transparent;
+	}
+
+	.tag:hover {
+		background: var(--accent-color);
+		color: white;
+		transform: translateY(-2px);
+		box-shadow: 0 2px 8px rgba(var(--gray), 0.2);
+	}
+
+	.tag.active {
+		background: var(--accent-color);
+		color: white;
+	}
+
+	/* 暗色模式标签样式 */
+	[data-theme='dark'] .tag:not(.active) {
+		background: rgba(99, 102, 241, 0.15);
+		border-color: rgba(99, 102, 241, 0.3);
+	}
+
+	/* 侧边栏 */
+	.tags-sidebar {
+		position: sticky;
+		top: 2rem;
+		height: fit-content;
+		padding: 1.5rem;
+		background: var(--card-bg);
+		border-radius: 12px;
+		border: 1px solid var(--border-color);
+	}
+
+	.tags-sidebar h3 {
+		margin: 0 0 1rem 0;
+		font-size: 1.2rem;
+		color: var(--text-primary);
+		padding-bottom: 0.5rem;
+		border-bottom: 2px solid var(--accent-color);
+	}
+
+	.all-tags {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.all-tags .tag {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 0.5rem 0.8rem;
+		background: rgba(var(--gray), 0.05);
+	}
+
+	.tag-count {
+		background: var(--accent-color);
+		color: white;
+		padding: 0.1rem 0.5rem;
+		border-radius: 10px;
+		font-size: 0.75rem;
+		font-weight: 600;
+	}
+
+	.no-posts {
+		text-align: center;
+		color: var(--text-secondary);
+		font-size: 1.1rem;
+		padding: 2rem;
+	}
+
+	/* 响应式 */
+	@media (max-width: 900px) {
+		.tag-content-wrapper {
+			grid-template-columns: 1fr;
+		}
+
+		.tags-sidebar {
+			position: static;
+		}
+	}
+
+	@media (max-width: 720px) {
+		.tag-title {
+			font-size: 2rem;
+		}
+
+		.container {
+			padding: 1rem;
+		}
+	}
+</style>

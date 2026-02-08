@@ -11,7 +11,7 @@ import TableOfContents from '../components/TableOfContents.astro';
 
 type Props = CollectionEntry<'blog'>['data'];
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, tags } = Astro.props;
 ---
 
 <html lang="en">
@@ -108,6 +108,44 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 			[data-theme='dark'] .copy-button:hover {
 				background: var(--accent-dark);
 			}
+
+			/* 文章标签样式 */
+			.post-tags {
+				display: flex;
+				gap: 0.5rem;
+				flex-wrap: wrap;
+				margin-top: 1rem;
+			}
+
+			.tag {
+				display: inline-block;
+				padding: 0.3rem 0.8rem;
+				background: rgba(var(--gray), 0.1);
+				color: var(--accent-color);
+				border-radius: 16px;
+				font-size: 0.85rem;
+				text-decoration: none;
+				transition: all 0.2s ease;
+				border: 1px solid transparent;
+			}
+
+			.tag:hover {
+				background: var(--accent-color);
+				color: white;
+				transform: translateY(-2px);
+				box-shadow: 0 2px 8px rgba(var(--gray), 0.2);
+			}
+
+			/* 暗色模式标签样式 */
+			[data-theme='dark'] .tag {
+				background: rgba(99, 102, 241, 0.15);
+				border-color: rgba(99, 102, 241, 0.3);
+			}
+
+			[data-theme='dark'] .tag:hover {
+				background: var(--accent-color);
+				border-color: var(--accent-color);
+			}
 		</style>
 	</head>
 
@@ -133,6 +171,15 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 						</div>
 						<h1>{title}</h1>
 						<hr />
+						{tags && tags.length > 0 && (
+							<div class="post-tags">
+								{tags.map((tag) => (
+									<a href={`/tags/${tag}/`} class="tag">
+										#{tag}
+									</a>
+								))}
+							</div>
+						)}
 					</div>
 					<slot />
 				</div>

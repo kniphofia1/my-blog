@@ -1,0 +1,525 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import BackToTop from '../components/BackToTop.astro';
+import ReadingProgress from '../components/ReadingProgress.astro';
+import { getCollection } from 'astro:content';
+import { getReadingTime, formatWordCount } from '../utils/reading-time';
+
+// 获取所有文章并生成搜索索引
+const allPosts = await getCollection('blog');
+
+const searchIndex = allPosts.map((post) => {
+	const content = post.body || '';
+	const readingTime = getReadingTime(content);
+
+	return {
+		id: post.id,
+		title: post.data.title,
+		description: post.data.description || '',
+		content: content.replace(/```[\s\S]*?```/g, '').replace(/[#*`_\[\]]/g, ' ').trim(), // 移除 Markdown 语法
+		pubDate: post.data.pubDate.toISOString(),
+		updatedDate: post.data.updatedDate?.toISOString() || null,
+		tags: post.data.tags || [],
+		heroImage: post.data.heroImage?.src || null,
+		readingTime: readingTime.minutes,
+		wordCount: readingTime.words,
+	};
+});
+
+// 将搜索索引注入到页面
+const searchIndexJSON = JSON.stringify(searchIndex);
+---
+
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<BaseHead title="搜索" description="搜索文章内容" />
+	</head>
+	<body>
+		<ReadingProgress />
+		<Header />
+		<main class="container">
+			<div class="search-page">
+				<div class="search-header">
+					<h1>搜索文章</h1>
+					<p class="search-subtitle">在 {searchIndex.length} 篇文章中查找内容</p>
+				</div>
+
+				<div class="search-container">
+					<div class="search-box-wrapper">
+						<div class="search-icon">
+							<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<circle cx="11" cy="11" r="8"></circle>
+								<path d="m21 21-4.35-4.35"></path>
+							</svg>
+						</div>
+						<input
+							type="text"
+							id="search-input"
+							class="search-input"
+							placeholder="输入关键词搜索文章标题或内容..."
+							autocomplete="off"
+							autofocus
+						/>
+						<button id="clear-search" class="clear-button" aria-label="清除搜索" style="display: none;">
+							<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<line x1="18" y1="6" x2="6" y2="18"></line>
+								<line x1="6" y1="6" x2="18" y2="18"></line>
+							</svg>
+						</button>
+					</div>
+
+					<div id="search-stats" class="search-stats"></div>
+
+					<div id="search-results" class="search-results">
+						<div class="search-placeholder">
+							<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+								<circle cx="11" cy="11" r="8"></circle>
+								<path d="m21 21-4.35-4.35"></path>
+							</svg>
+							<p>输入关键词开始搜索</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+		<BackToTop />
+		<Footer />
+
+		<!-- 搜索索引数据 -->
+		<script define:vars={{ searchIndex: searchIndexJSON }}>
+			// 搜索索引
+			const posts = JSON.parse(searchIndex);
+
+			// DOM 元素
+			const searchInput = document.getElementById('search-input');
+			const clearButton = document.getElementById('clear-search');
+			const searchResults = document.getElementById('search-results');
+			const searchStats = document.getElementById('search-stats');
+
+			// 防抖函数
+			function debounce(func: Function, wait: number) {
+				let timeout: NodeJS.Timeout | null = null;
+				return function (...args: any[]) {
+					if (timeout) clearTimeout(timeout);
+					timeout = setTimeout(() => func.apply(this, args), wait);
+				};
+			}
+
+			// 高亮关键词
+			function highlightKeywords(text: string, keywords: string[]): string {
+				if (keywords.length === 0) return text;
+
+				const regex = new RegExp(`(${keywords.map(escapeRegExp).join('|')})`, 'gi');
+				return text.replace(regex, '<mark class="highlight">$1</mark>');
+			}
+
+			// 转义正则表达式特殊字符
+			function escapeRegExp(string: string): string {
+				return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+			}
+
+			// 截取文本并保留关键词上下文
+			function extractSnippet(content: string, keywords: string[], maxLength = 200): string {
+				if (content.length <= maxLength) return content;
+
+				const lowerContent = content.toLowerCase();
+				const lowerKeywords = keywords.map(k => k.toLowerCase());
+
+				// 找到第一个关键词的位置
+				let firstPos = -1;
+				for (const keyword of lowerKeywords) {
+					const pos = lowerContent.indexOf(keyword);
+					if (pos !== -1 && (firstPos === -1 || pos < firstPos)) {
+						firstPos = pos;
+					}
+				}
+
+				if (firstPos === -1) {
+					return content.substring(0, maxLength) + '...';
+				}
+
+				// 从关键词位置开始，前后保留一些上下文
+				const start = Math.max(0, firstPos - maxLength / 2);
+				const end = Math.min(content.length, firstPos + maxLength / 2);
+
+				let snippet = content.substring(start, end);
+				if (start > 0) snippet = '...' + snippet;
+				if (end < content.length) snippet = snippet + '...';
+
+				return snippet;
+			}
+
+			// 搜索函数
+			function search(query: string) {
+				if (!query.trim()) {
+					showPlaceholder();
+					return;
+				}
+
+				const keywords = query.split(/\s+/).filter(k => k.length > 0);
+				const results = posts.filter(post => {
+					const searchText = `${post.title} ${post.description} ${post.content}`.toLowerCase();
+					return keywords.some(keyword => searchText.includes(keyword.toLowerCase()));
+				});
+
+				displayResults(results, keywords);
+			}
+
+			// 显示搜索结果
+			function displayResults(results: any[], keywords: string[]) {
+				if (results.length === 0) {
+					searchResults.innerHTML = `
+						<div class="no-results">
+							<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+								<circle cx="11" cy="11" r="8"></circle>
+								<path d="m21 21-4.35-4.35"></path>
+								<line x1="8" y1="11" x2="14" y2="11"></line>
+							</svg>
+							<p>未找到匹配的文章</p>
+							<p class="no-results-hint">试试其他关键词</p>
+						</div>
+					`;
+					searchStats.textContent = '';
+					return;
+				}
+
+				searchStats.innerHTML = `<span class="result-count">${results.length}</span> 篇文章`;
+
+				searchResults.innerHTML = results.map(post => {
+					const pubDate = new Date(post.pubDate).toLocaleDateString('zh-CN');
+					const snippet = extractSnippet(post.content, keywords);
+					const highlightedSnippet = highlightKeywords(snippet, keywords);
+					const highlightedTitle = highlightKeywords(post.title, keywords);
+
+					return `
+						<article class="search-result-item">
+							<a href="/blog/${post.id}/" class="result-link">
+								<h2 class="result-title">${highlightedTitle}</h2>
+							</a>
+							<div class="result-meta">
+								<time datetime="${post.pubDate}">${pubDate}</time>
+								<span class="result-stats">
+									${post.wordCount}字 · ${post.readingTime}分钟
+								</span>
+							</div>
+							${post.description ? `<p class="result-description">${highlightKeywords(post.description, keywords)}</p>` : ''}
+							<p class="result-snippet">${highlightedSnippet}</p>
+							${post.tags && post.tags.length > 0 ? `
+								<div class="result-tags">
+									${post.tags.map((tag: string) => `<a href="/tags/${tag}/" class="tag">#${tag}</a>`).join('')}
+								</div>
+							` : ''}
+						</article>
+					`;
+				}).join('');
+			}
+
+			// 显示占位符
+			function showPlaceholder() {
+				searchResults.innerHTML = `
+					<div class="search-placeholder">
+						<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+							<circle cx="11" cy="11" r="8"></circle>
+							<path d="m21 21-4.35-4.35"></path>
+						</svg>
+						<p>输入关键词开始搜索</p>
+					</div>
+				`;
+				searchStats.textContent = '';
+				clearButton.style.display = 'none';
+			}
+
+			// 事件监听
+			const debouncedSearch = debounce((query: string) => search(query), 300);
+
+			searchInput.addEventListener('input', (e) => {
+				const query = (e.target as HTMLInputElement).value;
+				clearButton.style.display = query ? 'flex' : 'none';
+				debouncedSearch(query);
+			});
+
+			clearButton.addEventListener('click', () => {
+				searchInput.value = '';
+				clearButton.style.display = 'none';
+				showPlaceholder();
+				searchInput.focus();
+			});
+
+			// ESC 键清空搜索
+			document.addEventListener('keydown', (e) => {
+				if (e.key === 'Escape') {
+					searchInput.value = '';
+					clearButton.style.display = 'none';
+					showPlaceholder();
+				}
+			});
+
+			// 初始化
+			showPlaceholder();
+			searchInput.focus();
+		</script>
+	</body>
+</html>
+
+<style>
+	.container {
+		max-width: 900px;
+		margin: 0 auto;
+		padding: 2rem 1rem;
+	}
+
+	.search-page {
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+	}
+
+	.search-header {
+		text-align: center;
+		padding: 2rem 0;
+	}
+
+	.search-header h1 {
+		font-size: 2.5rem;
+		margin-bottom: 0.5rem;
+		color: var(--text-primary);
+	}
+
+	.search-subtitle {
+		font-size: 1.1rem;
+		color: var(--text-secondary);
+		margin: 0;
+	}
+
+	.search-container {
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+	}
+
+	/* 搜索框 */
+	.search-box-wrapper {
+		position: relative;
+		display: flex;
+		align-items: center;
+		background: var(--card-bg);
+		border: 2px solid var(--border-color);
+		border-radius: 12px;
+		padding: 0.75rem 1rem;
+		transition: all 0.3s ease;
+	}
+
+	.search-box-wrapper:focus-within {
+		border-color: var(--accent-color);
+		box-shadow: 0 0 0 3px rgba(var(--gray), 0.1);
+	}
+
+	.search-icon {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--text-secondary);
+		margin-right: 0.75rem;
+	}
+
+	.search-input {
+		flex: 1;
+		border: none;
+		background: transparent;
+		font-size: 1rem;
+		color: var(--text-primary);
+		outline: none;
+		font-family: inherit;
+	}
+
+	.search-input::placeholder {
+		color: var(--text-secondary);
+	}
+
+	.clear-button {
+		display: none;
+		align-items: center;
+		justify-content: center;
+		background: transparent;
+		border: none;
+		color: var(--text-secondary);
+		cursor: pointer;
+		padding: 0.25rem;
+		border-radius: 4px;
+		transition: all 0.2s ease;
+	}
+
+	.clear-button:hover {
+		background: rgba(var(--gray), 0.1);
+		color: var(--text-primary);
+	}
+
+	/* 搜索统计 */
+	.search-stats {
+		font-size: 0.95rem;
+		color: var(--text-secondary);
+		padding: 0 0.5rem;
+	}
+
+	.result-count {
+		font-weight: 600;
+		color: var(--accent-color);
+	}
+
+	/* 搜索结果 */
+	.search-results {
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+		min-height: 200px;
+	}
+
+	.search-placeholder,
+	.no-results {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 3rem;
+		color: var(--text-secondary);
+		text-align: center;
+	}
+
+	.search-placeholder svg,
+	.no-results svg {
+		margin-bottom: 1rem;
+		opacity: 0.5;
+	}
+
+	.search-placeholder p,
+	.no-results p {
+		margin: 0;
+		font-size: 1.1rem;
+	}
+
+	.no-results-hint {
+		font-size: 0.9rem !important;
+		margin-top: 0.5rem !important;
+		opacity: 0.7;
+	}
+
+	/* 搜索结果项 */
+	.search-result-item {
+		padding: 1.5rem;
+		background: var(--card-bg);
+		border: 1px solid var(--border-color);
+		border-radius: 8px;
+		transition: all 0.2s ease;
+	}
+
+	.search-result-item:hover {
+		border-color: var(--accent-color);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+		transform: translateX(4px);
+	}
+
+	.result-link {
+		text-decoration: none;
+		color: inherit;
+	}
+
+	.result-title {
+		font-size: 1.5rem;
+		font-weight: 600;
+		margin: 0 0 0.5rem 0;
+		color: var(--text-primary);
+	}
+
+	.result-meta {
+		font-size: 0.9rem;
+		color: var(--text-secondary);
+		margin-bottom: 0.75rem;
+		display: flex;
+		gap: 1rem;
+		align-items: center;
+	}
+
+	.result-stats {
+		background: var(--accent-color);
+		color: white;
+		padding: 0.2rem 0.6rem;
+		border-radius: 4px;
+		font-size: 0.85rem;
+		font-weight: 500;
+	}
+
+	.result-description {
+		color: var(--text-secondary);
+		line-height: 1.6;
+		margin-bottom: 0.75rem;
+	}
+
+	.result-snippet {
+		color: var(--text-secondary);
+		line-height: 1.6;
+		font-size: 0.95rem;
+	}
+
+	/* 高亮关键词 */
+	.highlight {
+		background: rgba(255, 235, 59, 0.3);
+		padding: 0.1rem 0.2rem;
+		border-radius: 2px;
+		font-weight: 600;
+	}
+
+	[data-theme='dark'] .highlight {
+		background: rgba(255, 235, 59, 0.2);
+	}
+
+	/* 标签 */
+	.result-tags {
+		display: flex;
+		gap: 0.5rem;
+		flex-wrap: wrap;
+		margin-top: 0.75rem;
+	}
+
+	.tag {
+		display: inline-block;
+		padding: 0.3rem 0.8rem;
+		background: rgba(var(--gray), 0.1);
+		color: var(--accent-color);
+		border-radius: 16px;
+		font-size: 0.85rem;
+		text-decoration: none;
+		transition: all 0.2s ease;
+	}
+
+	.tag:hover {
+		background: var(--accent-color);
+		color: white;
+	}
+
+	/* 暗色模式 */
+	[data-theme='dark'] .tag {
+		background: rgba(99, 102, 241, 0.15);
+	}
+
+	[data-theme='dark'] .search-result-item {
+		background: rgba(30, 41, 59, 0.6);
+	}
+
+	/* 响应式 */
+	@media (max-width: 720px) {
+		.search-header h1 {
+			font-size: 2rem;
+		}
+
+		.result-title {
+			font-size: 1.25rem;
+		}
+
+		.container {
+			padding: 1rem;
+		}
+	}
+</style>
